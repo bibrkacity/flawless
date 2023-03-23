@@ -1,0 +1,40 @@
+div.node_outer {
+    margin:0 auto;
+    position:relative;
+    top:0px;
+    display:inline-block;
+}
+
+div.node_outer.left {
+
+}
+div.node_outer.right {
+    float: right;
+}
+
+div.node_outer > div.form{
+    background-color: antiquewhite;
+}
+
+div.node_outer > div.form > input[type="number"]{
+    width:30px;
+}
+
+
+div.node{
+    width:90px;
+    height:30px;
+    border:1px solid black;
+    border-radius:2px;
+    margin:10px auto;
+    position:relative;
+}
+
+div.node > input[value="+"]{
+    position:absolute;
+    right:0px;
+    top:5px;
+    width:20px;
+    height:20px;
+    padding:0px;
+}

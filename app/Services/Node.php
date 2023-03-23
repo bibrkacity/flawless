@@ -40,11 +40,16 @@ class Node
         }
     }
 
+    public function __get($property){
+        if($property == 'model')
+            return $this->model;
+    }
+
     /**
-     * Повернення вузла з усіма нащадками в JSON
-     * @return bool|string
+     * Повернення вузла з усіма нащадками в stdClass
+     * @return \stdClass
      */
-    public function toJson(): bool|string
+    public function toObject(): \stdClass
     {
         $node = new \stdClass();
         $node->id = $this->model->id;
@@ -59,11 +64,11 @@ class Node
 
         foreach($children as $one){
             $child = new Node($one);
-            $node->children[] =$child->toJson();
+            $node->children[] =$child->toObject();
             unset($child);
         }
 
-        return json_encode($node);
+        return $node;
     }
 
     /**
@@ -88,7 +93,7 @@ class Node
         $node->path = $this->model->path ;
         $node->level = $this->model->level + 1;
 
-        $node->save(['updatePath']); // path will be corrected by model Tree
+        $node->save(['updatePath'=>1]); // path will be corrected by model Tree
 
         return $node;
 
@@ -105,6 +110,24 @@ class Node
             ->delete();
 
         $this->model->delete();
+
+    }
+
+    /**
+     * Визначення найглибшого рівня нащадка
+     * @return int
+     */
+    public function deepestLevel():int
+    {
+
+        $max = Tree::where('path','like','%.'.$this->model->id.'.%')
+            ->orWhere('path','like','%.'.$this->model->id)
+            ->max('level');
+
+        if(!$max)
+            $max = $this->model->level;
+
+        return $max;
 
     }
 

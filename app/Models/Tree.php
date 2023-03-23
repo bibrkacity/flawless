@@ -9,6 +9,8 @@ class Tree extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table='tree';
 
     public function childrenCount():int
@@ -21,6 +23,7 @@ class Tree extends Model
     {
         $children = [];
         $result = Tree::where('parent_id',$this->id)
+            ->orderBy('position','asc')
             ->get();
 
         foreach($result as $one){

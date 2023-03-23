@@ -11,11 +11,26 @@ use Illuminate\Http\Request;
 class TreeController extends Controller
 {
 
-    public function render(Request $request): array
+    public function render(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
     {
-        $data = [];
-        $node = $this->node($request);
 
+        try{
+            $data = ['error' => 0];
+
+            $node = new Node($request);
+
+            $data['node'] = $node;
+            $deepest = $node->deepestLevel();
+
+
+            $data['levels'] = $deepest - $node->model->level ;
+
+            $data['json'] = json_encode($node->toObject());
+
+        } catch(\Exception $e) {
+            $data['error'] = 1;
+            $data['message'] = $e->getMessage();
+        }
 
         return view('tree',['data'=>$data]);
 
@@ -26,7 +41,7 @@ class TreeController extends Controller
         try{
 
             $response = [
-                'error'=>0,
+                'error'=> 0,
             ];
 
             $node = new Node($request);
@@ -36,31 +51,26 @@ class TreeController extends Controller
             $response['error'] = 1;
             $response['message'] = $e->getMessage();
         }
-
         return $response;
-
     }
 
-    public function add(Request $request): array
+    public function add(Request $request): string|\Illuminate\Http\RedirectResponse
     {
         try{
-
-            $response = [
-                'error'=>0,
-            ];
 
             $node = new Node($request);
             $position = null;
             if(isset($request->position))
                 $position = (int)$request->position;
-            $response['data'] = $node->add($position);
+            $node->add($position);
+
+            $url = route('tree.render').'?id='.$node->id;
+
+            return redirect()->to($url);
 
         } catch(\Exception $e) {
-            $response['error'] = 1;
-            $response['message'] = $e->getMessage();
+            return $e->getMessage();
         }
-
-        return $response;
     }
 
     public function remove(Request $request): array
