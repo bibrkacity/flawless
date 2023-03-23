@@ -23,6 +23,7 @@
         let json = `{!!   $data['json'] !!}`;
         let width = {{ $width }};
         let _token = '{{ csrf_token() }}';
+        let root_id = {{ $data['node']->model->id }};
     </script>
 @endsection
 

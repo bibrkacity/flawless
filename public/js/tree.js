@@ -1,9 +1,7 @@
 function render()
 {
     let obj = JSON.parse(json);
-
     node( obj, width );
-
 }
 
 
@@ -15,8 +13,18 @@ function node( obj, div_width )
     div.className = 'node';
     div=div_outer.appendChild(div);
 
-    let text = document.createTextNode('id='+ obj.id);
-    div.appendChild(text);
+    let text;
+    if(obj.id == root_id){
+        text = document.createTextNode('id='+ obj.id);
+        div.appendChild(text);
+    } else {
+        text = document.createTextNode('id=');
+        div.appendChild(text);
+        let a=document.createElement('a');
+        a.href='/tree?id='+obj.id;
+        a=div.appendChild(a);
+        a.appendChild(document.createTextNode(obj.id));
+    }
 
     let position;
     let input
@@ -29,6 +37,24 @@ function node( obj, div_width )
         position = obj.children.length == 1 ? 2 : 1;
         input.onclick = function () {
             renderAddForm(obj.id, div_outer, position);
+        }
+    }
+
+    if (obj.id != root_id) {
+
+        input = document.createElement('input');
+        input.type = 'button';
+        input.value = '-';
+        input = div.appendChild(input);
+
+        input.onclick = function () {
+            if( confirm('Будут удалены все потомки этого узла вместе с ним. Продолжить?')){
+
+                removeNode('/tree', { id: obj.id, _token: _token, _method:"DELETE" })
+                    .then((data) => {
+                        location.href='/tree?id='+root_id;
+                    });
+            }
         }
     }
 
@@ -73,6 +99,9 @@ function renderAddForm(node_id,div_outer,position)
     input.value=node_id;
     form.appendChild(input);
 
+    let text = document.createTextNode('position:');
+    form.appendChild(text);
+
     input = document.createElement('input');
     input.type = 'number' ;
     input.name='position';
@@ -84,5 +113,20 @@ function renderAddForm(node_id,div_outer,position)
     input.value='add';
     form.appendChild(input);
 
+}
 
+async function removeNode(url = '', data = {}) {
+    const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
+    });
+    return await response.json();
 }

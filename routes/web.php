@@ -21,6 +21,6 @@ Route::group(['prefix' => 'tree','namespace'=>'App\Http\Controllers'], function 
     Route::get('','TreeController@render')->name('tree.render');
     Route::get('node','TreeController@node');
     Route::post('','TreeController@add');
-    Route::delete('','TreeController@delete');
+    Route::delete('','TreeController@remove');
 
 });
